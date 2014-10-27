@@ -1,0 +1,53 @@
+<!doctype html>
+<html class="no-js" lang="">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Javascript date calculation error</title>
+<meta name="description" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div id="tz2014alert"></div>
+<script> 
+var dates = [];
+var maxd = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 30, 30, 30 ];
+for (var y = 1900; y <= 2015; y++) {
+ for (var m = 1; m <= 12; m++) {
+  for (var d = 1; d <= maxd[m - 1]; d++) {
+   var dd = d < 10 ? ("0" + d) : d;
+   var mm = m < 10 ? ("0" + m) : m;
+   var dt = dd + "/" + mm + "/" + y;
+   dates[dates.length] = dt;
+  }
+ }
+}
+var str = ""; 
+var ok = 0;
+var err = 0;
+for (var i = 0; i < dates.length; i++) {
+  var dt = dates[i].split(/\//);
+  var day = parseInt(dt[0], 10);
+  var month = parseInt(dt[1], 10);
+  var year = parseInt(dt[2], 10);
+  var date = new Date(year, month - 1, day, 0, 0);
+  if (date.getDate() == day && date.getMonth() + 1 == month && date.getFullYear() == year) {
+    // ALL OK
+    // str += "<span style='color: #d0d0d0'>" + dates[i] + " == " + date + "</span><br>";
+    ok ++; 
+  } else {
+    str += "<span style='color: red'>" + dates[i] + " != " + date + "</span><br>";
+    err ++;
+  } 
+}
+str += "Dates error " + err + " ok " + ok;
+ 
+window.setTimeout(function () {
+ var el = document.getElementById("tz2014alert");
+ if (el) {
+   el.innerHTML = str;
+ } 
+}, 10);
+</script>
+</body>
+</html>
