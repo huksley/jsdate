@@ -6,6 +6,7 @@
 <title>Javascript date calculation error</title>
 <meta name="description" content="">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="moment.min.js"></script>
 </head>
 <body>
 
@@ -90,7 +91,23 @@ for (var i = 0; i < dates.length; i++) {
     err ++;
   } 
 }
-str += "Dates error " + err + " ok " + ok;
+
+str += "[NATIVE] Ошибок " + err + " правильно " + ok;
+str += "<p>";
+
+ok = 0; 
+err = 0;
+for (var i = 0; i < dates.length; i++) {
+   var dd = dates[i];
+   var dt = moment(dd, "DD/MM/YYYY").format("DD/MM/YYYY");
+   if (dt == dd) {
+     ok ++; 
+   } else {
+    str += "<span style='color: red'>" + dd + " != " + dt + "</span><br>";
+    err ++
+   }
+}
+str += "[MOMENTJS] Ошибок " + err + " правильно " + ok;
  
 window.setTimeout(function () {
  var el = document.getElementById("tz2014alert");
