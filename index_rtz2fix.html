@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Javascript date calculation error</title>
+<meta name="description" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="rtz2fix/rtz2fix.js"></script>
+<script src="moment.min.js"></script>
+</head>
+<body>
+
+<h1>Настройки временных зон</h1>
+
+<p>
+В связи с введением новых временных зон с 26 октября 2014 года 
+в браузерах <acronym title="Internet Explorer">IE</acronym>, FF, Chrome &lt; 40 появилась проблема с преобразованием дат
+которая может приводить к ошибкам в работе веб-приложений.
+</p>
+
+<ul>
+<li class="level1"><div class="li"> <strong>ВРЕМЕННОЕ РЕШЕНИЕ</strong> Москва, выбор временной зоны <strong>Минск (UTC+03:00)</strong> решает проблему.</div>
+</li>
+<li class="level1"><div class="li"> <strong>ВРЕМЕННОЕ РЕШЕНИЕ</strong> Екатеринбург, выбор временной зоны <strong>Ашхабад, Ташкент (UTC+05:00)</strong> решает проблему.</div>
+</li>
+</ul>
+
+<p>
+<strong>
+В ОБЩЕМ СЛУЧАЕ</strong> Выбор временной зоны с тем же отклонением от <strong>UTC+X:00</strong> но не называющейся <del>RTZ</del> <strong>РЕШАЕТ ПРОБЛЕМУ</strong>. Исключение <strong>RTZ 3</strong> с ней все в порядке.
+</p>
+
+<h2>Тест всех дат с 1900 до 2015</h2>
+
+<p>
+Производится преобразование из строки в объект Javascript <code>Date</code>. После этого поля в дате сравниваются с теми которые указаны в тексте. 
+</p>
+<p>
+<code>
+var date = new Date(year, month - 1, day, 0, 0);<br>
+if (date.getDate() != day || date.getMonth() + 1 != month || date.getFullYear() != year) {<br>
+    alert("Ошибка!");<br>
+}<br>
+</code>
+</p>
+<p>
+<b>Данный тест должен выдавать 0 ошибок!</b>
+</p>
+<ul>
+<li class="level1"><div class="li"> В <strong>RTZ 2 (Москва)</strong> в данный момент выдает 116 ошибок.</div>
+</li>
+<li class="level1"><div class="li"> Во временной зоне <strong>Минск (UTC+03:00)</strong> - 0 ошибок.</div>
+</li>
+<li class="level1"><div class="li"> В <strong>RTZ 3</strong> - ошибок.</div>
+</li>
+<li class="level1"><div class="li"> В <strong>RTZ 4 (Екатеринбург)</strong> - 116 ошибок.</div>
+</li>
+<li class="level1"><div class="li"> Во временной зоне <strong>Ашхабад, Ташкент (UTC+05:00)</strong> - 0 ошибок.</div>
+</li>
+</ul>
+
+<div id="tz2014alert"></div>
+<script> 
+var dates = [];
+var maxd = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 30, 30, 30 ];
+for (var y = 1900; y <= 2015; y++) {
+ for (var m = 1; m <= 12; m++) {
+  for (var d = 1; d <= maxd[m - 1]; d++) {
+   var dd = d < 10 ? ("0" + d) : d;
+   var mm = m < 10 ? ("0" + m) : m;
+   var dt = dd + "/" + mm + "/" + y;
+   dates[dates.length] = dt;
+  }
+ }
+}
+var str = ""; 
+var ok = 0;
+var err = 0;
+for (var i = 0; i < dates.length; i++) {
+  var dt = dates[i].split(/\//);
+  var day = parseInt(dt[0], 10);
+  var month = parseInt(dt[1], 10);
+  var year = parseInt(dt[2], 10);
+  var date = new Date(year, month - 1, day, 0, 0);
+  if (date.getDate() == day && date.getMonth() + 1 == month && date.getFullYear() == year) {
+    // ALL OK
+    // str += "<span style='color: #d0d0d0'>" + dates[i] + " == " + date + "</span><br>";
+    ok ++; 
+  } else {
+    str += "<span style='color: red'>" + dates[i] + " != " + date + "</span><br>";
+    err ++;
+  } 
+}
+
+str += "[NATIVE] Ошибок " + err + " правильно " + ok;
+str += "<p>";
+
+ok = 0; 
+err = 0;
+for (var i = 0; i < dates.length; i++) {
+   var dd = dates[i];
+   var dt = moment(dd, "DD/MM/YYYY").format("DD/MM/YYYY");
+   if (dt == dd) {
+     ok ++; 
+   } else {
+    str += "<span style='color: red'>" + dd + " != " + dt + "</span><br>";
+    err ++
+   }
+}
+str += "[MOMENTJS] Ошибок " + err + " правильно " + ok;
+ 
+window.setTimeout(function () {
+ var el = document.getElementById("tz2014alert");
+ if (el) {
+   el.innerHTML = str;
+ } 
+}, 10);
+</script>
+</body>
+</html>
